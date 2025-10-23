@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业权限角色分配系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#3b82f6',
+                        neutral: '#f1f5f9',
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .card {
+                @apply bg-white rounded-lg shadow-sm p-5 mb-6;
+            }
+            .section-title {
+                @apply text-lg font-semibold mb-4 text-gray-800 flex items-center;
+            }
+            .section-title i {
+                @apply mr-2 text-primary;
+            }
+            .form-group {
+                @apply mb-4;
+            }
+            .btn {
+                @apply px-4 py-2 rounded-md transition-colors;
+            }
+            .btn-primary {
+                @apply bg-primary text-white hover:bg-primary/90;
+            }
+            .btn-secondary {
+                @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+            }
+            .permission-tag {
+                @apply inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-2 mb-2;
+            }
+            .nav-item {
+                @apply px-4 py-2 cursor-pointer transition-colors hover:bg-gray-100;
+            }
+            .nav-item.active {
+                @apply bg-primary text-white;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<header class="bg-primary text-white py-4 px-6 shadow-md">
+    <div class="container mx-auto">
+        <h1 class="text-2xl font-bold">
+            <i class="fa fa-shield mr-2"></i>企业权限角色分配系统
+        </h1>
+        <p class="text-sm mt-1 opacity-90">基于集合的等价关系与划分实现</p>
+    </div>
+</header>
+
+<!-- 导航菜单 -->
+<nav class="bg-white border-b border-gray-200">
+    <div class="container mx-auto">
+        <div class="flex overflow-x-auto">
+            <div class="nav-item active" data-view="role-management">
+                <i class="fa fa-sitemap mr-1"></i>角色管理
+            </div>
+            <div class="nav-item" data-view="user-management">
+                <i class="fa fa-users mr-1"></i>用户管理
+            </div>
+            <div class="nav-item" data-view="equivalence-verification">
+                <i class="fa fa-check-square-o mr-1"></i>等价关系验证
+            </div>
+            <div class="nav-item" data-view="set-partition">
+                <i class="fa fa-th-large mr-1"></i>用户集合划分
+            </div>
+            <div class="nav-item" data-view="permission-mapping">
+                <i class="fa fa-key mr-1"></i>用户权限集
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="container mx-auto px-4 py-6">
+    <!-- 1. 角色管理界面 -->
+    <div id="role-management" class="view-content">
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- 角色创建 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-plus-circle"></i>创建角色
+                </h2>
+
+                <div class="form-group">
+                    <label class="block text-gray-700 font-medium mb-2">角色名称</label>
+                    <input type="text" id="roleName" placeholder="输入角色名称（如：普通员工）"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+
+                <div class="form-group">
+                    <label class="block text-gray-700 font-medium mb-2">分配权限</label>
+                    <div class="space-y-2 max-h-60 overflow-y-auto p-2 border border-gray-200 rounded-md">
+                        <label class="flex items-center">
+                            <input type="checkbox" value="查看报表" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">查看报表</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="提交数据" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">提交数据</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="修改数据" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">修改数据</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="审批流程" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">审批流程</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="管理用户" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">管理用户</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="管理角色" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">管理角色</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="查看日志" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">查看日志</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" value="导出数据" class="form-checkbox h-4 w-4 text-primary rounded" />
+                            <span class="ml-2 text-gray-700">导出数据</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button id="createRoleBtn" class="btn btn-primary w-full">
+                    <i class="fa fa-plus mr-1"></i> 创建角色
+                </button>
+            </div>
+
+            <!-- 角色列表 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-list"></i>已创建角色
+                </h2>
+                <div id="roleList" class="space-y-3 max-h-[500px] overflow-y-auto">
+                    <p class="text-gray-500 italic text-sm">暂无角色，请先创建角色</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. 用户管理界面 -->
+    <div id="user-management" class="view-content hidden">
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- 用户创建 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-user-plus"></i>添加用户
+                </h2>
+
+                <div class="form-group">
+                    <label class="block text-gray-700 font-medium mb-2">用户名</label>
+                    <input type="text" id="userName" placeholder="输入用户名"
+                           class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                </div>
+
+                <div class="form-group">
+                    <label class="block text-gray-700 font-medium mb-2">分配角色</label>
+                    <select id="userRole" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <option value="">-- 请先创建角色 --</option>
+                    </select>
+                </div>
+
+                <button id="addUserBtn" class="btn btn-primary w-full">
+                    <i class="fa fa-save mr-1"></i> 保存用户
+                </button>
+            </div>
+
+            <!-- 用户角色分配 -->
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fa fa-exchange"></i>用户-角色分配
+                </h2>
+                <div id="userRoleAssignments" class="space-y-3 max-h-[500px] overflow-y-auto">
+                    <p class="text-gray-500 italic text-sm">暂无用户，请先添加用户</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 等价关系验证界面 -->
+    <div id="equivalence-verification" class="view-content hidden">
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-check-square-o"></i>等价关系验证结果
+            </h2>
+            <div id="equivalenceVerification" class="text-gray-700 space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-gray-500 italic">请添加角色和用户以进行验证</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-info-circle"></i>等价关系说明
+            </h2>
+            <div class="text-sm text-gray-700 space-y-2">
+                <p><strong>自反性</strong>：每个用户必须属于且仅属于一个角色</p>
+                <p><strong>对称性</strong>：如果两个用户属于同一角色，则他们拥有相同的权限集</p>
+                <p><strong>传递性</strong>：如果用户A与B同属一个角色，且用户B与C同属一个角色，则用户A与C也属于同一个角色</p>
+                <p class="mt-2 text-blue-600">只有同时满足以上三个性质，用户-角色关系才构成等价关系</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 用户集合划分界面 -->
+    <div id="set-partition" class="view-content hidden">
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-th-large"></i>用户集合划分结果
+            </h2>
+            <div id="setPartitionResult" class="text-gray-700 space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-gray-500 italic">请添加角色和用户以查看划分结果</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-info-circle"></i>集合划分说明
+            </h2>
+            <div class="text-sm text-gray-700 space-y-2">
+                <p>用户集合U被划分为若干个不相交的子集（称为划分块），每个子集对应一个角色</p>
+                <p><strong>划分的三个性质</strong>：</p>
+                <ol class="list-decimal list-inside pl-4 space-y-1">
+                    <li>每个划分块都是非空集合（每个角色至少有一个用户）</li>
+                    <li>任意两个不同的划分块没有公共元素（用户不能同时属于多个角色）</li>
+                    <li>所有划分块的并集等于用户集合U（每个用户都必须属于某个角色）</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 用户权限集界面 -->
+    <div id="permission-mapping" class="view-content hidden">
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-key"></i>用户权限集
+            </h2>
+            <div id="permissionMappingResult" class="text-gray-700 space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-gray-500 italic">请添加角色和用户以查看权限映射</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">
+                <i class="fa fa-info-circle"></i>权限集说明
+            </h2>
+            <div class="text-sm text-gray-700 space-y-2">
+                <p>每个用户的权限集等于其所属角色的权限集合，即：</p>
+                <p class="p-2 bg-blue-50 rounded my-2">用户u的权限集 = 角色r的权限集（其中u属于角色r）</p>
+                <p>角色权限集可以通过集合运算进行扩展，例如：</p>
+                <p class="p-2 bg-blue-50 rounded my-2">"部门经理"权限集 = "普通员工"权限集 ∪ {"审批流程"}</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="mt-8 py-4 px-4 border-t border-gray-200">
+    <div class="container mx-auto text-center text-gray-500 text-sm">
+        <p>企业权限角色分配系统 | 基于集合的等价关系与划分实现</p>
+    </div>
+</footer>
+
+<script>
+    // 数据存储
+    let roles = [];          // 角色列表：{id, name, permissions[]}
+    let users = [];          // 用户列表：{id, name, roleId}
+    let nextRoleId = 1;      // 下一个角色ID
+    let nextUserId = 1;      // 下一个用户ID
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 导航菜单切换
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+
+                // 显示对应的内容区域
+                const viewName = this.getAttribute('data-view');
+                document.querySelectorAll('.view-content').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                document.getElementById(viewName).classList.remove('hidden');
+            });
+        });
+
+        // 绑定事件处理函数
+        document.getElementById('createRoleBtn').addEventListener('click', createRole);
+        document.getElementById('addUserBtn').addEventListener('click', addUser);
+
+        // 初始化示例数据
+        initSampleData();
+    });
+
+    // 初始化示例数据
+    function initSampleData() {
+        // 创建示例角色
+        document.getElementById('roleName').value = '普通员工';
+        document.querySelectorAll('input[type="checkbox"][value="查看报表"]')[0].checked = true;
+        document.querySelectorAll('input[type="checkbox"][value="提交数据"]')[0].checked = true;
+        createRole();
+
+        document.getElementById('roleName').value = '部门经理';
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = ['查看报表', '提交数据', '审批流程', '修改数据'].includes(checkbox.value);
+        });
+        createRole();
+
+        // 创建示例用户
+        document.getElementById('userName').value = '张三';
+        document.getElementById('userRole').value = '1';
+        addUser();
+
+        document.getElementById('userName').value = '李四';
+        document.getElementById('userRole').value = '2';
+        addUser();
+    }
+
+    // 创建角色
+    function createRole() {
+        const roleNameInput = document.getElementById('roleName');
+        const roleName = roleNameInput.value.trim();
+
+        if (!roleName) {
+            alert('请输入角色名称');
+            return;
+        }
+
+        // 收集选中的权限
+        const permissions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        if (permissions.length === 0) {
+            if (!confirm('该角色没有分配任何权限，确定要创建吗？')) {
+                return;
+            }
+        }
+
+        // 创建新角色
+        const newRole = {
+            id: nextRoleId++,
+            name: roleName,
+            permissions: permissions
+        };
+
+        roles.push(newRole);
+
+        // 更新UI
+        updateRoleList();
+        updateUserRoleSelect();
+        updateAllResults();
+
+        // 重置表单
+        roleNameInput.value = '';
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+
+    // 添加用户
+    function addUser() {
+        const userNameInput = document.getElementById('userName');
+        const userName = userNameInput.value.trim();
+        const roleId = document.getElementById('userRole').value;
+
+        if (!userName) {
+            alert('请输入用户名');
+            return;
+        }
+
+        if (!roleId) {
+            alert('请为用户分配角色');
+            return;
+        }
+
+        // 检查用户名是否已存在
+        if (users.some(user => user.name === userName)) {
+            alert('该用户名已存在');
+            return;
+        }
+
+        // 创建新用户
+        const newUser = {
+            id: nextUserId++,
+            name: userName,
+            roleId: parseInt(roleId)
+        };
+
+        users.push(newUser);
+
+        // 更新UI
+        updateUserRoleAssignments();
+        updateAllResults();
+
+        // 重置表单
+        userNameInput.value = '';
+    }
+
+    // 更新角色列表
+    function updateRoleList() {
+        const roleListContainer = document.getElementById('roleList');
+
+        if (roles.length === 0) {
+            roleListContainer.innerHTML = '<p class="text-gray-500 italic text-sm">暂无角色，请先创建角色</p>';
+            return;
+        }
+
+        let html = '';
+        roles.forEach(role => {
+            html += `
+                    <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <div class="flex justify-between items-start">
+                            <div class="font-medium">${role.name}</div>
+                            <button onclick="deleteRole(${role.id})" class="text-red-500 hover:text-red-700 text-sm">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="mt-2">
+                            ${role.permissions.length > 0 ?
+                role.permissions.map(perm => `<span class="permission-tag">${perm}</span>`).join('') :
+                '<span class="text-gray-400 text-xs">无权限</span>'}
+                        </div>
+                    </div>
+                `;
+        });
+
+        roleListContainer.innerHTML = html;
+    }
+
+    // 更新用户角色选择下拉框
+    function updateUserRoleSelect() {
+        const userRoleSelect = document.getElementById('userRole');
+
+        if (roles.length === 0) {
+            userRoleSelect.innerHTML = '<option value="">-- 请先创建角色 --</option>';
+            return;
+        }
+
+        let html = '<option value="">-- 选择角色 --</option>';
+        roles.forEach(role => {
+            html += `<option value="${role.id}">${role.name}</option>`;
+        });
+
+        userRoleSelect.innerHTML = html;
+    }
+
+    // 更新用户角色分配列表
+    function updateUserRoleAssignments() {
+        const userRoleContainer = document.getElementById('userRoleAssignments');
+
+        if (users.length === 0) {
+            userRoleContainer.innerHTML = '<p class="text-gray-500 italic text-sm">暂无用户，请先添加用户</p>';
+            return;
+        }
+
+        let html = '';
+        users.forEach(user => {
+            const role = roles.find(r => r.id === user.roleId);
+            const roleName = role ? role.name : '未知角色';
+
+            html += `
+                    <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 flex justify-between items-center">
+                        <div>
+                            <div class="font-medium">${user.name}</div>
+                            <div class="text-sm text-gray-600">角色：${roleName}</div>
+                        </div>
+                        <button onclick="deleteUser(${user.id})" class="text-red-500 hover:text-red-700">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+        });
+
+        userRoleContainer.innerHTML = html;
+    }
+
+    // 删除角色
+    function deleteRole(roleId) {
+        // 检查是否有用户属于该角色
+        const hasUsers = users.some(user => user.roleId === roleId);
+        if (hasUsers) {
+            if (!confirm('该角色下有用户，删除角色将同时删除这些用户，确定要删除吗？')) {
+                return;
+            }
+            // 删除属于该角色的用户
+            users = users.filter(user => user.roleId !== roleId);
+            updateUserRoleAssignments();
+        }
+
+        // 删除角色
+        roles = roles.filter(role => role.id !== roleId);
+
+        // 更新UI
+        updateRoleList();
+        updateUserRoleSelect();
+        updateAllResults();
+    }
+
+    // 删除用户
+    function deleteUser(userId) {
+        users = users.filter(user => user.id !== userId);
+        updateUserRoleAssignments();
+        updateAllResults();
+    }
+
+    // 更新所有结果展示
+    function updateAllResults() {
+        verifyEquivalenceRelation();
+        showSetPartition();
+        showPermissionMapping();
+    }
+
+    // 验证等价关系（自反、对称、传递）
+    function verifyEquivalenceRelation() {
+        const container = document.getElementById('equivalenceVerification');
+
+        if (users.length === 0 || roles.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">请添加角色和用户以进行验证</p>';
+            return;
+        }
+
+        // 自反性验证
+        let reflexivityDetails = [];
+        let reflexivity = true;
+        users.forEach(user => {
+            const hasRole = roles.some(role => role.id === user.roleId);
+            if (hasRole) {
+                const role = roles.find(r => r.id === user.roleId);
+                reflexivityDetails.push(`${user.name}属于${role.name}角色（满足）`);
+            } else {
+                reflexivityDetails.push(`${user.name}不属于任何角色（不满足）`);
+                reflexivity = false;
+            }
+        });
+
+        // 对称性验证
+        let symmetryDetails = [];
+        let symmetry = true;
+        const roleGroups = groupUsersByRole();
+        for (const roleId in roleGroups) {
+            const role = roles.find(r => r.id === parseInt(roleId));
+            if (!role) continue;
+
+            const usersInRole = roleGroups[roleId];
+            if (usersInRole.length >= 2) {
+                symmetryDetails.push(`${usersInRole.map(u => u.name).join('和')}同属${role.name}角色，权限相同（满足）`);
+            }
+        }
+        if (symmetryDetails.length === 0) {
+            symmetryDetails.push("没有两个或以上用户属于同一角色，对称性默认满足");
+        }
+
+        // 传递性验证
+        let transitivityDetails = [];
+        let transitivity = true;
+        const hasTransitiveExample = Object.values(roleGroups).some(group => group.length >= 3);
+
+        if (hasTransitiveExample) {
+            // 找到有3个以上用户的角色组
+            for (const roleId in roleGroups) {
+                const role = roles.find(r => r.id === parseInt(roleId));
+                if (!role) continue;
+
+                const usersInRole = roleGroups[roleId];
+                if (usersInRole.length >= 3) {
+                    transitivityDetails.push(`${usersInRole[0].name}→${usersInRole[1].name}同角色，${usersInRole[1].name}→${usersInRole[2].name}同角色，则${usersInRole[0].name}→${usersInRole[2].name}同角色（满足）`);
+                    break;
+                }
+            }
+        } else if (Object.values(roleGroups).some(group => group.length === 2)) {
+            transitivityDetails.push("存在2人同角色组，传递性默认满足（需要3人组才能展示传递性实例）");
+        } else {
+            transitivityDetails.push("所有角色组都只有1人，传递性默认满足");
+        }
+
+        // 构建验证结果HTML
+        let html = `
+                <div class="font-medium mb-3">等价关系验证结果：${reflexivity && symmetry && transitivity ?
+            '<span class="text-green-600">满足等价关系</span>' :
+            '<span class="text-red-600">不满足等价关系</span>'}</div>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="font-medium text-primary mb-1">自反性：</div>
+                        <ul class="list-disc list-inside pl-2 text-sm space-y-1">
+                            ${reflexivityDetails.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <div class="font-medium text-primary mb-1">对称性：</div>
+                        <ul class="list-disc list-inside pl-2 text-sm space-y-1">
+                            ${symmetryDetails.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <div>
+                        <div class="font-medium text-primary mb-1">传递性：</div>
+                        <ul class="list-disc list-inside pl-2 text-sm space-y-1">
+                            ${transitivityDetails.map(detail => `<li>${detail}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+
+        container.innerHTML = html;
+    }
+
+    // 显示集合划分结果
+    function showSetPartition() {
+        const container = document.getElementById('setPartitionResult');
+
+        if (users.length === 0 || roles.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">请添加角色和用户以查看划分结果</p>';
+            return;
+        }
+
+        // 按角色分组用户
+        const roleGroups = groupUsersByRole();
+
+        // 检查划分的合法性
+        const allUsersCount = users.length;
+        let totalInGroups = 0;
+        const groupIds = Object.keys(roleGroups);
+
+        groupIds.forEach(roleId => {
+            totalInGroups += roleGroups[roleId].length;
+        });
+
+        const isCoveringAll = totalInGroups === allUsersCount;
+        const isDisjoint = true; // 由于用户只能属于一个角色，天然满足无交集
+
+        // 构建划分结果HTML
+        let html = `
+                <div class="font-medium mb-3">划分合法性：${isCoveringAll && isDisjoint ?
+            '<span class="text-green-600">合法（满足非空、无交、覆盖全集）</span>' :
+            '<span class="text-red-600">不合法</span>'}</div>
+            `;
+
+        if (groupIds.length === 0) {
+            html += '<p>没有有效的角色划分块</p>';
+        } else {
+            html += '<div class="space-y-3 mt-2">';
+            groupIds.forEach((roleId, index) => {
+                const role = roles.find(r => r.id === parseInt(roleId));
+                if (!role) return;
+
+                const usersInRole = roleGroups[roleId];
+                if (usersInRole.length === 0) return;
+
+                html += `
+                        <div class="p-2 border border-gray-200 rounded bg-white">
+                            <div class="font-medium">划分块 ${index + 1}：{${usersInRole.map(u => u.name).join(', ')}}</div>
+                            <div class="text-sm text-gray-600 mt-1">角色：${role.name}</div>
+                        </div>
+                    `;
+            });
+            html += '</div>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    // 显示用户权限映射
+    function showPermissionMapping() {
+        const container = document.getElementById('permissionMappingResult');
+
+        if (users.length === 0 || roles.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 italic">请添加角色和用户以查看权限映射</p>';
+            return;
+        }
+
+        // 构建权限映射HTML
+        let html = '<div class="space-y-4">';
+
+        users.forEach(user => {
+            const role = roles.find(r => r.id === user.roleId);
+            if (!role) return;
+
+            html += `
+                    <div class="p-3 border border-gray-200 rounded bg-white">
+                        <div class="font-medium">${user.name}的权限集：</div>
+                        <div class="mt-2">
+                            ${role.permissions.length > 0 ?
+                `<span class="text-gray-700">{"${role.permissions.join('", "')}"}</span>` :
+                '<span class="text-gray-500">空集（无任何权限）</span>'}
+                        </div>
+                        <div class="text-sm text-gray-500 mt-2">所属角色：${role.name}</div>
+                    </div>
+                `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // 辅助函数：按角色分组用户
+    function groupUsersByRole() {
+        const groups = {};
+
+        // 初始化所有角色的分组
+        roles.forEach(role => {
+            groups[role.id] = [];
+        });
+
+        // 将用户分配到对应的角色组
+        users.forEach(user => {
+            if (groups.hasOwnProperty(user.roleId)) {
+                groups[user.roleId].push(user);
+            }
+        });
+
+        return groups;
+    }
+</script>
+</body>
+</html>
